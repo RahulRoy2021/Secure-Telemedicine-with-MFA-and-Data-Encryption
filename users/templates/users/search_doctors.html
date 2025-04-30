@@ -1,0 +1,114 @@
+{# users/templates/users/search_doctors.html - Standalone Version #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Doctors</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <style>
+        /* You can reuse styles from home.html if needed */
+        .doctor-card {
+            border: 1px solid #ddd; border-radius: 10px; padding: 15px;
+            margin-bottom: 15px; display: flex; align-items: center;
+            background-color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .doctor-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 15px;}
+        .doctor-info { flex-grow: 1; }
+        .doctor-actions { flex-shrink: 0; }
+        /* Simple form layout */
+        .search-form form { display: flex; gap: 1rem; margin-bottom: 2rem; align-items: flex-end;}
+        .search-form form div { flex-grow: 1;}
+     </style>
+</head>
+<body>
+    {# --- Navbar --- #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Telemedicine</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+             {% if user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+              <li class="nav-item"><span class="navbar-text me-3">Hello, {{ user.username }}!</span></li>
+              <li class="nav-item"><a class="btn btn-outline-secondary btn-sm" href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+               <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+               <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {# --- End Navbar --- #}
+
+    <main class="container mt-4">
+        <h2 class="mb-4">Search for Doctors</h2>
+
+        {# --- Search Form --- #}
+        <div class="search-form card card-body mb-4 shadow-sm">
+            <form method="get" action="{% url 'search_doctors' %}">
+                {# Render form fields - using as_p for simplicity here #}
+                {# Or render manually for more control over layout #}
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                </div>
+                 <div>
+                    <label for="{{ form.specialization.id_for_label }}" class="form-label">{{ form.specialization.label }}</label>
+                    {{ form.specialization }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+        {# --- End Search Form --- #}
+
+        <hr>
+
+        <h3 class="mt-4">Search Results</h3>
+        {% if doctors %}
+            {% for doctor in doctors %}
+              <div class="doctor-card">
+                {% with profile=doctor.doctor_profile %}
+                    {% if profile and profile.profile_picture %}
+                      <img src="{{ profile.profile_picture.url }}" alt="Photo of Dr. {{ doctor.username }}" />
+                    {% else %}
+                      <img src="/static/images/default-doctor.png" alt="Default Doctor Image" />
+                    {% endif %}
+                    <div class="doctor-info">
+                      <h4>Dr. {{ doctor.first_name }} {{ doctor.last_name }} ({{ doctor.username }})</h4>
+                      <p class="mb-1">Specialization: {{ profile.specialization|default:"N/A" }}</p>
+                      {# Add other relevant info like experience, charges? #}
+                      {% comment %} <p>Experience: {{ profile.experience_years }} years</p> {% endcomment %}
+                    </div>
+                    <div class="doctor-actions">
+                       {# Link to view availability / start booking #}
+                       <a href="{% url 'appointments:view_doctor_availability' doctor.id %}" class="btn btn-success btn-sm">
+                           <i class="fas fa-calendar-plus"></i> Book Appointment
+                       </a>
+                       {# Maybe link to a full profile view later #}
+                    </div>
+                 {% endwith %}
+              </div>
+            {% empty %}
+              <p class="text-muted">No doctors found matching your search criteria.</p>
+            {% endfor %}
+        {% else %}
+             {# This might occur if the initial query fails, unlikely with form validation #}
+             <p class="text-muted">Enter search criteria above to find doctors.</p>
+        {% endif %}
+
+    </main>
+
+    <footer class="text-center mt-5 py-3 bg-light">
+        <p class="mb-0">&copy; {% now "Y" %} Telemedicine Platform</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

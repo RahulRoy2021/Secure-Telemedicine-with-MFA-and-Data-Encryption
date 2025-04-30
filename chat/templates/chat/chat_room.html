@@ -1,0 +1,1432 @@
+{# chat/templates/chat/chat_room.html #}
+<html>
+  <head>
+    <title>Chat with {{ receiver.username }}</title>
+    <style>
+      /* --- Keep all your existing CSS styles here --- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+        margin: 0;
+        background-color: #e5ddd5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #chat-container {
+        width: 90%;
+        max-width: 800px;
+        height: 90vh;
+        max-height: 900px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.06),
+          0 2px 5px 0 rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+      #chat-header {
+        background-color: #005e54;
+        color: white;
+        padding: 10px 15px;
+        font-size: 1.1em;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+      #chat-box {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px 20px 20px 20px;
+        background-color: #e5ddd5;
+        display: flex;
+        flex-direction: column;
+      }
+      .message-container {
+        display: flex;
+        margin-bottom: 10px;
+        max-width: 75%;
+      }
+      .message-bubble {
+        padding: 8px 65px 20px 12px;
+        border-radius: 12px;
+        word-wrap: break-word;
+        line-height: 1.4;
+        box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+        font-size: 0.95em;
+        position: relative;
+        min-height: 20px;
+      }
+      .message-meta {
+        font-size: 0.7em;
+        color: #888;
+        position: absolute;
+        bottom: 4px;
+        right: 8px;
+        white-space: nowrap;
+      }
+      .message-sent {
+        align-self: flex-end;
+        margin-left: auto;
+      }
+      .message-sent .message-bubble {
+        background-color: #dcf8c6;
+        border-radius: 12px 12px 5px 12px;
+      }
+      .message-sent .message-meta {
+        color: #77936a;
+      }
+      .message-received {
+        align-self: flex-start;
+        margin-right: auto;
+      }
+      .message-received .message-bubble {
+        background-color: #ffffff;
+        border-radius: 12px 12px 12px 5px;
+      }
+      .message-sender {
+        font-weight: bold;
+        font-size: 0.85em;
+        color: #005e54;
+        margin-bottom: 3px;
+        display: block;
+      }
+      * Add some basic styling for the buttons */ .message-actions {
+        position: absolute;
+        top: 2px;
+        right: 4px; /* Adjust positioning */
+        display: none; /* Hide by default */
+        font-size: 0.8em;
+      }
+      .message-container:hover .message-actions {
+        display: block; /* Show on hover */
+      }
+      .message-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 2px 4px;
+        margin-left: 3px;
+        color: #667781;
+      }
+      .message-actions button:hover {
+        color: #3b4a54;
+      }
+      .message-bubble.deleted {
+        background-color: #f0f0f0 !important; /* Style for deleted messages */
+        color: #888;
+        font-style: italic;
+      }
+      .edited-indicator {
+        font-size: 0.7em;
+        color: #888;
+        margin-left: 5px; /* Space before (edited) text */
+      }
+      #footer-area {
+        background-color: #f0f0f0;
+        border-top: 1px solid #ddd;
+        flex-shrink: 0;
+      }
+      #typing-indicator {
+        height: 20px;
+        color: #667781;
+        font-style: italic;
+        font-size: 0.85em;
+        padding: 2px 15px;
+        box-sizing: border-box;
+      }
+      #input-area {
+        display: flex;
+        padding: 10px 15px;
+        align-items: center;
+      }
+      .action-button {
+        background: none;
+        border: none;
+        font-size: 1.3em;
+        cursor: pointer;
+        padding: 0 8px;
+        color: #54656f;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+      .action-button:hover {
+        color: #3b4a54;
+      }
+      .action-button svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+      }
+      #message-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        outline: none;
+        margin: 0 5px;
+        font-size: 0.95em;
+      }
+      #send-mic-button {
+        background-color: #005e54;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 1.2em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        padding: 0;
+      }
+      #send-mic-button:hover {
+        background-color: #004c45;
+      }
+      #send-mic-button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      #send-mic-button svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+      #send-mic-button.recording {
+        background-color: red;
+      }
+      #send-mic-button.recording:hover {
+        background-color: darkred;
+      }
+      #picker-container {
+        position: absolute;
+        bottom: 65px;
+        left: 10px;
+        z-index: 100;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      emoji-picker {
+        width: 320px;
+        max-height: 300px;
+        --indicator-color: #005e54;
+        --border-color: #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-container">
+      <div id="chat-header">
+        Chat with {{ receiver.username }}
+        <div
+          id="user-status-indicator"
+          style="font-size: 0.8em; height: 1.2em; color: #d0e0e3"
+        ></div>
+      </div>
+      <div id="chat-box">{# Messages loaded by JS #}</div>
+      <div id="footer-area">
+        <div id="input-area">
+          <button id="emoji-button" title="Emoji" class="action-button">
+            &#x1F600;
+          </button>
+          <button id="attach-button" title="Attach file" class="action-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              class="bi bi-paperclip"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"
+              />
+            </svg>
+          </button>
+          <input
+            type="text"
+            id="message-input"
+            placeholder="Type your message"
+          />
+          <button
+            id="send-mic-button"
+            title="Send"
+            onclick="handleSendMicClick()"
+            disabled
+          >
+            <span id="send-icon">&#10148;</span>
+            <span id="mic-icon" style="display: none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-mic"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5"
+                />
+                <path d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0z" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="picker-container">
+        <emoji-picker></emoji-picker>
+      </div>
+      <input
+        type="file"
+        id="file-input"
+        style="display: none"
+        accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,text/plain,audio/*,application/dicom"
+        {#
+        Added
+        DICOM
+        accept
+        type
+        #}
+      />
+    </div>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
+    <script>
+      // --- Element References ---
+      const chatContainer = document.getElementById("chat-container");
+      const chatBox = document.getElementById("chat-box");
+      const messageInput = document.getElementById("message-input");
+      const sendMicButton = document.getElementById("send-mic-button");
+      const sendIcon = document.getElementById("send-icon");
+      const micIcon = document.getElementById("mic-icon");
+      const currentUsername = "{{ request.user.username|escapejs }}";
+      const receiverUsername = "{{ receiver.username|escapejs }}";
+      const userStatusIndicator = document.getElementById(
+        "user-status-indicator"
+      ); // <<< ADDED
+      const emojiButton = document.getElementById("emoji-button");
+      const pickerContainer = document.getElementById("picker-container");
+      const emojiPicker = pickerContainer.querySelector("emoji-picker");
+      const attachButton = document.getElementById("attach-button");
+      const fileInput = document.getElementById("file-input");
+
+      // --- WebSocket Variable ---
+      let socket;
+
+      // --- Typing Indicator State ---
+      let typingTimeout;
+      const TYPING_TIMER_LENGTH = 1500;
+      let userIsTyping = false;
+      let remoteUserTypingTimeout;
+      let remoteUserIsTyping = false; // ADDED flag for remote typing state
+      let onlineStatusText = ""; // ADDED variable to store base status
+
+      // --- Audio Recording State ---
+      let mediaRecorder;
+      let audioChunks = [];
+      let isRecording = false;
+      let audioStream;
+
+      // --- Function: Get CSRF Cookie ---
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      const csrftoken = getCookie("csrftoken");
+
+      // --- Function: Connect WebSocket ---
+      function connectWebSocket() {
+        // ... (keep existing connectWebSocket function as is - it should be working now) ...
+        if (
+          socket &&
+          (socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING)
+        ) {
+          console.log(
+            `CONNECT: WebSocket already open or connecting (state: ${socket.readyState}). Skipping.`
+          );
+          return;
+        }
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsPath = `${wsScheme}://${window.location.hostname}:8001/ws/chat/${receiverUsername}/`; // Ensure port is correct (8001)
+        console.log("CONNECT: Attempting WebSocket connection to:", wsPath);
+        socket = new WebSocket(wsPath);
+        socket.onopen = () => {
+          console.log(
+            `CONNECT: ✅ WebSocket established (state: ${socket.readyState}).`
+          );
+          sendMicButton.disabled = false; // Enable send button on connect
+        };
+        socket.onerror = (error) => {
+          console.error("CONNECT: ❌ WebSocket Error:", error);
+        };
+        socket.onclose = (event) => {
+          console.log(
+            `CONNECT: ❌ WebSocket closed (Code: ${event.code}, Reason: ${
+              event.reason || "No reason specified"
+            }, State: ${socket ? socket.readyState : "N/A"}).`
+          );
+          sendMicButton.disabled = true; // Disable send button on close
+          if (userIsTyping) {
+            sendStopTyping(); // Clean up typing state
+          }
+          // Clear remote user status indicators when *our* connection closes
+          updateTypingIndicator(receiverUsername, false); // Clear typing just in case
+          updateUserStatus(""); // Clear online status (or set to "Offline")
+          console.log(
+            `STATUS: Connection closed, setting status for ${receiverUsername} to offline.`
+          );
+          console.log(
+            `CONNECT: Scheduling reconnection attempt in 3 seconds...`
+          );
+          // Simple exponential backoff could be added here for robustness
+          setTimeout(() => {
+            console.log(`CONNECT: Reconnection timer fired.`);
+            connectWebSocket();
+          }, 3000); // Reconnect after 3 seconds
+        };
+
+        // --- Function: Handle Incoming WebSocket Messages ---
+        socket.onmessage = function (event) {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("WebSocket Received Data:", data); // Log received data for debugging
+            const messageType = data.type || "chat_message";
+
+            // Handle different message types
+            if (messageType === "chat_message") {
+              if (data.sender_username && typeof data.message !== "undefined") {
+                updateTypingIndicator(data.sender_username, false);
+                // Append simple text message
+                appendMessage({
+                  sender_username: data.sender_username,
+                  message: data.message,
+                  timestamp: data.timestamp,
+                  // fileUrl, id, original_filename are null/undefined for text messages
+                });
+              } else {
+                console.warn(
+                  "Received chat message with unexpected format:",
+                  data
+                );
+              }
+            } else if (messageType === "typing_start") {
+              if (data.sender_username) {
+                updateTypingIndicator(data.sender_username, true);
+              }
+            } else if (messageType === "typing_stop") {
+              if (data.sender_username) {
+                updateTypingIndicator(data.sender_username, false);
+              }
+            } else if (messageType === "user_online") {
+           // Revert to simple version: backend now guarantees this is accurate
+           // and only sends if it's about the other user.
+           if (data.username === receiverUsername) {
+             console.log(
+               `STATUS: Received online status for ${data.username}`
+             );
+             // Clear typing indicator and update status directly
+             clearTimeout(remoteUserTypingTimeout);
+             remoteUserIsTyping = false;
+             updateUserStatus("Online"); // Use the standard function
+           }
+         } else if (messageType === "user_offline") {
+           // Revert to simple version: backend now guarantees this is accurate
+           // and only sends if it's about the other user.
+           if (data.username === receiverUsername) {
+             console.log(
+               `STATUS: Received offline status for ${data.username}`
+             );
+              // Clear typing indicator and update status directly
+             clearTimeout(remoteUserTypingTimeout);
+             remoteUserIsTyping = false;
+             updateUserStatus(""); // Use the standard function (sets onlineStatusText and updates UI if not typing)
+           }
+              // <-- Make sure the rest of your message handlers follow this
+            } else if (messageType === "media_message") {
+              // Ensure needed data is present for media message display
+              if (
+                data.sender_username &&
+                data.download_url &&
+                data.id &&
+                data.original_filename
+              ) {
+                updateTypingIndicator(data.sender_username, false);
+                // Append media message with all necessary data for download link
+                appendMessage({
+                  sender_username: data.sender_username,
+                  message: data.caption || "",
+                  timestamp: data.timestamp,
+                  download_url: data.download_url, // <<< Pass file_url
+                  id: data.id, // <<< Pass id
+                  original_filename: data.original_filename, // <<< Pass original_filename // Note: appendMessage internally expects these snake_case keys now
+                });
+              } else {
+                console.warn("Received media message with missing data:", data);
+              }
+              // Inside the main socket.onmessage function
+            } else if (messageType === "message_edited") {
+              // --- FINAL message_edited HANDLER (Preserves Sender Name) ---
+              console.log("Handling edited message event:", data);
+              if (
+                !data ||
+                !data.message_id ||
+                typeof data.new_message === "undefined"
+              ) {
+                console.error("Received incomplete edit data:", data);
+                // break; // If using switch, otherwise just return or do nothing
+              } else {
+                console.log(
+                  `Attempting to edit message ID: ${data.message_id} with content: "${data.new_message}"`
+                ); // Debug log
+
+                const editedContainer = chatBox.querySelector(
+                  `.message-container[data-message-id='${data.message_id}']`
+                );
+                if (editedContainer) {
+                  const bubble =
+                    editedContainer.querySelector(".message-bubble");
+                  if (bubble) {
+                    console.log(
+                      "[DEBUG] Bubble found. InnerHTML BEFORE change:",
+                      bubble.innerHTML
+                    );
+
+                    // --- Check if it's a received message (has sender span) ---
+                    const senderSpan = bubble.querySelector(".message-sender");
+                    const originalSenderName = senderSpan
+                      ? senderSpan.textContent
+                      : null;
+                    console.log(
+                      "[DEBUG] Original sender name found:",
+                      originalSenderName
+                    ); // Should be null for sent, name for received
+                    // ---
+
+                    const metaSpan = bubble.querySelector(".message-meta");
+                    const actionsDiv = bubble.querySelector(".message-actions"); // Will be null for received messages
+
+                    // Clear the bubble
+                    bubble.innerHTML = "";
+                    console.log(
+                      "[DEBUG] Bubble innerHTML AFTER clear:",
+                      bubble.innerHTML
+                    );
+
+                    // --- Rebuild Content ---
+                    // 1. Re-add sender name IF it existed originally
+                    if (originalSenderName) {
+                      const newSenderSpan = document.createElement("span");
+                      newSenderSpan.classList.add("message-sender");
+                      newSenderSpan.textContent = originalSenderName; // Use stored name
+                      bubble.appendChild(newSenderSpan);
+                      console.log("[DEBUG] Re-added sender span.");
+                    }
+
+                    // 2. Add the new message text
+                    const newSafeMessage = escapeHTML(data.new_message);
+                    const messageLines = newSafeMessage.split("\n");
+                    messageLines.forEach((line, index) => {
+                      bubble.appendChild(document.createTextNode(line));
+                      if (index < messageLines.length - 1) {
+                        bubble.appendChild(document.createElement("br"));
+                      }
+                    });
+                    console.log("[DEBUG] Added new text nodes.");
+
+                    // 3. Re-append and update metadata
+                    if (metaSpan) {
+                      let editedIndicator =
+                        metaSpan.querySelector(".edited-indicator");
+                      if (!editedIndicator) {
+                        editedIndicator = document.createElement("span");
+                        editedIndicator.classList.add("edited-indicator");
+                        metaSpan.appendChild(document.createTextNode(" "));
+                        metaSpan.appendChild(editedIndicator);
+                      }
+                      editedIndicator.textContent = "(edited)";
+                      // Ensure original timestamp is preserved if needed, might need adjustment
+                      bubble.appendChild(metaSpan);
+                      console.log("[DEBUG] Re-added meta span.");
+                    }
+
+                    // 4. Re-append action buttons IF they existed originally
+                    if (actionsDiv) {
+                      bubble.appendChild(actionsDiv);
+                      console.log("[DEBUG] Re-added actions div.");
+                    }
+                    // --- End Rebuild ---
+
+                    console.log(
+                      "[DEBUG] Bubble innerHTML FINAL:",
+                      bubble.innerHTML
+                    );
+                  } else {
+                    console.warn(
+                      "Could not find bubble for edited message:",
+                      data.message_id
+                    );
+                  }
+                } else {
+                  console.warn(
+                    `Could not find container for edited message: ${data.message_id}`
+                  );
+                }
+              }
+              // --- END CORRECTED message_edited HANDLER ---
+            } else if (messageType === "message_deleted") {
+              console.log("Handling deleted message:", data);
+              // Find the message element using data.message_id
+              const deletedContainer = chatBox.querySelector(
+                `.message-container[data-message-id='${data.message_id}']`
+              );
+              if (deletedContainer) {
+                const bubble =
+                  deletedContainer.querySelector(".message-bubble");
+                if (bubble) {
+                  // Replace content with "[Message deleted]" and style it
+                  bubble.innerHTML = ""; // Clear existing content
+                  bubble.classList.add("deleted");
+                  bubble.appendChild(
+                    document.createTextNode("[Message deleted]")
+                  );
+
+                  // Re-add metadata (optional, maybe just keep it minimal)
+                  const metaSpan = document.createElement("span");
+                  metaSpan.classList.add("message-meta");
+                  // metaSpan.textContent = formatTimestamp(SOME_TIMESTAMP); // May need original timestamp
+                  bubble.appendChild(metaSpan);
+                }
+                // Alternative: Hide the container
+                // deletedContainer.style.display = 'none';
+              }
+            } else {
+              console.warn(
+                "Received unknown message type via WebSocket:",
+                data
+              );
+            }
+          } catch (e) {
+            console.error(
+              "Error parsing WebSocket message:",
+              e,
+              "Raw data:",
+              event.data
+            );
+          }
+        }; // End socket.onmessage
+      } // End connectWebSocket
+
+      // --- Function: Update Typing Indicator UI ---
+      // --- Function: Update Typing Indicator (MODIFIED) ---
+      function updateTypingIndicator(username, isTyping) {
+        // Only act if the update is for the receiver of this chat window
+        if (username !== receiverUsername || !userStatusIndicator) {
+          return;
+        }
+
+        const typingText = `Typing...`;
+        console.log(`INDICATOR: Update for ${username}. isTyping: ${isTyping}`);
+        clearTimeout(remoteUserTypingTimeout); // Clear any previous timeout
+
+        if (isTyping) {
+          remoteUserIsTyping = true; // Set typing flag
+          if (userStatusIndicator.textContent !== typingText) {
+            userStatusIndicator.textContent = typingText; // Show "Typing..."
+            console.log(
+              `INDICATOR: Set indicator to "Typing..." for ${username}`
+            );
+          }
+          // Set a timeout to clear the typing indicator if no new 'start' events arrive
+          remoteUserTypingTimeout = setTimeout(() => {
+            console.log(
+              `INDICATOR: Typing timeout FIRED for ${username}. Reverting status.`
+            );
+            remoteUserIsTyping = false; // Clear typing flag
+            updateUserStatus(onlineStatusText); // Revert to showing Online/Offline status
+          }, TYPING_TIMER_LENGTH + 500); // Timeout duration
+        } else {
+          // If a 'stop' event is received, clear typing indicator immediately
+          remoteUserIsTyping = false; // Clear typing flag
+          console.log(
+            `INDICATOR: Stop event received for ${username}. Reverting status.`
+          );
+          updateUserStatus(onlineStatusText); // Revert to showing Online/Offline status
+        }
+      }
+      // --- Function: Escape HTML ---
+      function escapeHTML(str) {
+        // ... (keep existing escapeHTML function as is) ...
+        if (typeof str !== "string") {
+          console.warn("escapeHTML received non-string input:", str);
+          return "";
+        }
+        return str.replace(/[&<>'"]/g, (tag) => {
+          const charsToReplace = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;",
+          };
+          return charsToReplace[tag] || tag;
+        });
+      }
+
+      // --- Function: Format Timestamp ---
+      function formatTimestamp(isoTimestamp) {
+        // ... (keep existing formatTimestamp function as is) ...
+        if (!isoTimestamp) return "";
+        try {
+          const date = new Date(isoTimestamp);
+          if (isNaN(date.getTime())) {
+            // Check if date is valid
+            console.warn("Invalid timestamp received:", isoTimestamp);
+            return "[Invalid Date]";
+          }
+          // Format to locale time (e.g., 3:17 PM)
+          return date.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          });
+        } catch (e) {
+          console.error("Error formatting timestamp:", isoTimestamp, e);
+          return "[Time Error]";
+        }
+      }
+      // --- Function: Update User Status (NEW) ---
+      function updateUserStatus(statusText) {
+        // This function sets the general status (e.g., "Online", "Offline")
+        // It only updates the display if the user is NOT currently typing.
+        onlineStatusText = statusText; // Store the latest status
+        if (!remoteUserIsTyping && userStatusIndicator) {
+          userStatusIndicator.textContent = escapeHTML(statusText);
+          console.log(`STATUS: Set status to: "${statusText}"`);
+        } else if (userStatusIndicator) {
+          console.log(
+            `STATUS: Base status is "${statusText}", but typing indicator is active.`
+          );
+        }
+      }
+
+      // --- Function: Append Message to UI ---
+      // ** MODIFIED TO ACCEPT A SINGLE 'msgData' OBJECT **
+      // --- Function: Append Message to UI ---
+    // ** REVISED VERSION - Includes fix for fileUrl ReferenceError **
+    function appendMessage(msgData) {
+        const senderUsername = msgData.sender_username;
+        const message = msgData.message || ""; // Text message/caption
+        const isoTimestamp = msgData.timestamp;
+        const downloadUrl = msgData.download_url; // URL for download link
+        const messageId = msgData.id;             // Unique ID for the message div
+        const originalFilename = msgData.original_filename; // Original name for display
+        const editedAt = msgData.edited_at;       // Timestamp if edited
+
+        const isSentByCurrentUser = senderUsername === currentUsername;
+        const displaySender = isSentByCurrentUser ? "You" : senderUsername;
+        // Handle deleted message text explicitly
+        const safeMessage = (message === "[Message deleted]" || msgData.is_deleted)
+                             ? "[Message deleted]"
+                             : escapeHTML(message);
+        const timeString = formatTimestamp(isoTimestamp);
+        const isDeleted = msgData.is_deleted || message === "[Message deleted]";
+
+        // Create message container and bubble
+        const messageContainer = document.createElement("div");
+        messageContainer.classList.add("message-container");
+        messageContainer.setAttribute("data-message-id", messageId); // Add message ID attribute
+        if (isSentByCurrentUser) {
+            messageContainer.classList.add("message-sent");
+        } else {
+            messageContainer.classList.add("message-received");
+        }
+
+        const bubbleDiv = document.createElement("div");
+        bubbleDiv.classList.add("message-bubble");
+        if (isDeleted) { // Apply deleted style if needed
+             bubbleDiv.classList.add("deleted");
+        }
+
+        // Add sender name for received messages
+        if (!isSentByCurrentUser) {
+            const senderSpan = document.createElement("span");
+            senderSpan.classList.add("message-sender");
+            senderSpan.textContent = escapeHTML(displaySender);
+            bubbleDiv.appendChild(senderSpan);
+        }
+
+        // Handle File Display (Download Link)
+        if (downloadUrl && originalFilename && !isDeleted) {
+            const link = document.createElement("a");
+            link.href = downloadUrl; // Use the URL from backend
+            link.textContent = `Download File: ${escapeHTML(originalFilename)}`;
+            link.style.display = "block";
+            link.style.marginTop = "5px";
+            // link.target = "_blank"; // Optional: Open in new tab
+            bubbleDiv.appendChild(link);
+            // Add a line break if there's also a caption
+            if (safeMessage) {
+                 bubbleDiv.appendChild(document.createElement("br"));
+            }
+        }
+
+        // Append text caption/message if present (and not deleted)
+        if (safeMessage && !isDeleted) {
+            const messageLines = safeMessage.split("\n");
+            messageLines.forEach((line, index) => {
+                bubbleDiv.appendChild(document.createTextNode(line));
+                if (index < messageLines.length - 1) {
+                    bubbleDiv.appendChild(document.createElement("br"));
+                }
+            });
+        } else if (isDeleted) {
+            // Explicitly add deleted text if wasn't already set
+             if(bubbleDiv.textContent.trim() === "") { // Avoid adding if already added by caption check
+                 bubbleDiv.appendChild(document.createTextNode("[Message deleted]"));
+             }
+        }
+
+        // Add timestamp metadata
+        const metaSpan = document.createElement("span");
+        metaSpan.classList.add("message-meta");
+        metaSpan.textContent = timeString;
+        if (editedAt && !isDeleted) { // Show edited indicator if applicable
+            const editedSpan = document.createElement("span");
+            editedSpan.classList.add("edited-indicator");
+            editedSpan.textContent = "(edited)";
+            metaSpan.appendChild(document.createTextNode(" ")); // Add space before (edited)
+            metaSpan.appendChild(editedSpan);
+        }
+        bubbleDiv.appendChild(metaSpan);
+
+        // --- Add Edit/Delete Buttons (Only for sender and if not deleted) ---
+        if (isSentByCurrentUser && !isDeleted) {
+            const actionsDiv = document.createElement("div");
+            actionsDiv.classList.add("message-actions");
+
+            const editButton = document.createElement("button");
+            editButton.innerHTML = "✏️"; // Edit icon
+            editButton.title = "Edit Message";
+            editButton.onclick = () => editMessage(messageId); // Attach handler
+
+            // --- CORRECTED CONDITION ---
+            // Only add Edit button if it's NOT a file message
+            if (!downloadUrl && !originalFilename) {
+                actionsDiv.appendChild(editButton);
+            }
+            // --- END CORRECTION ---
+
+            const deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "🗑️"; // Delete icon
+            deleteButton.title = "Delete Message";
+            deleteButton.onclick = () => deleteMessage(messageId); // Attach handler
+            actionsDiv.appendChild(deleteButton);
+
+            bubbleDiv.appendChild(actionsDiv); // Add buttons to bubble
+        }
+        // --- End Add Edit/Delete Buttons ---
+
+        // Add bubble to container, and container to chatBox
+        messageContainer.appendChild(bubbleDiv);
+        chatBox.appendChild(messageContainer);
+
+        // Scroll to bottom if needed
+        const shouldScroll = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 100;
+        if (shouldScroll || isSentByCurrentUser) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    } // --- End of appendMessage Function ---
+
+      // --- Fetch Initial Chat History ---
+      const historyUrl = `/chat/api/history/${currentUsername}/${receiverUsername}/`;
+
+      console.log("Fetching history from:", historyUrl);
+      fetch(historyUrl, {
+        /* ... existing fetch options ... */ method: "GET",
+        headers: { "Content-Type": "application/json" }, // Ensure necessary headers like auth if needed
+        credentials: "include", // Include cookies if using session auth
+      })
+        .then((response) => {
+          /* ... existing response checking ... */
+          if (!response.ok) {
+            console.error(
+              `Error fetching history: ${response.status} ${response.statusText}`
+            );
+            chatBox.innerHTML = `<p style="color: red;">Error loading chat history (${response.status}). Please check logs or try again.</p>`;
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((messages) => {
+          console.log("History Received:", messages); // Log history data for debugging
+          chatBox.innerHTML = ""; // Clear chatbox before adding messages
+          if (Array.isArray(messages)) {
+            // ** MODIFIED LOOP TO PASS MSG OBJECT **
+            messages.forEach((msg) => {
+              if (msg && msg.sender_username) {
+                // Pass the whole 'msg' object, which should now contain
+                // id, sender_username, message, timestamp, file_url, original_filename
+                appendMessage(msg);
+              } else {
+                console.warn(
+                  "Received history message with unexpected format:",
+                  msg
+                );
+              }
+            });
+          } else {
+            console.error(
+              "Error: Expected an array of messages, but received:",
+              messages
+            );
+            chatBox.innerHTML = `<p style="color: red;">Error processing chat history format.</p>`;
+          }
+          // Scroll to bottom after loading history
+          chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch((error) => {
+          /* ... existing error handling ... */
+          console.error("Error fetching or processing chat history:", error);
+          // Avoid overwriting specific error messages if already shown
+          if (!chatBox.innerHTML.includes("Error loading chat history")) {
+            chatBox.innerHTML = `<p style="color: red;">Could not load chat history. Network error or server issue.</p>`;
+          }
+        });
+
+      // --- Typing Indicator Logic ---
+      function sendStartTyping() {
+        // ... (keep existing sendStartTyping function as is) ...
+        if (socket && socket.readyState === WebSocket.OPEN && !userIsTyping) {
+          console.log("--- TYPING: Sending start typing event");
+          socket.send(JSON.stringify({ type: "typing_start" }));
+          userIsTyping = true;
+        }
+      }
+      function sendStopTyping() {
+        // ... (keep existing sendStopTyping function as is) ...
+        console.log(
+          `--- TYPING: sendStopTyping called. userIsTyping = ${userIsTyping}`
+        );
+        if (socket && socket.readyState === WebSocket.OPEN && userIsTyping) {
+          console.log("--- TYPING: Sending stop typing event");
+          socket.send(JSON.stringify({ type: "typing_stop" }));
+          userIsTyping = false; // Reset state immediately
+        }
+        clearTimeout(typingTimeout); // Clear any pending timeout
+        console.log("--- TYPING: Cleared typingTimeout in sendStopTyping");
+      }
+      messageInput.addEventListener("input", () => {
+        // ... (keep existing input listener as is) ...
+        toggleSendMicButton(); // Update button icon based on input
+        sendStartTyping(); // Send typing start event
+        clearTimeout(typingTimeout); // Reset the timeout
+        // console.log("--- TYPING: Cleared typingTimeout due to new input.");
+        // console.log(`--- TYPING: Setting typingTimeout (${TYPING_TIMER_LENGTH}ms)`);
+        typingTimeout = setTimeout(() => {
+          // console.log("--- TYPING: typingTimeout FIRED. Calling sendStopTyping.");
+          sendStopTyping(); // Send stop event if user pauses typing
+        }, TYPING_TIMER_LENGTH);
+      });
+      // Send stop typing immediately if input loses focus
+      messageInput.addEventListener("blur", sendStopTyping);
+
+      // --- Function: Send Text Message ---
+      function sendTextMessage() {
+        // ... (keep existing sendTextMessage function as is) ...
+        // It now calls the modified appendMessage correctly for local echo
+        const message = messageInput.value.trim();
+        if (!message || !socket || socket.readyState !== WebSocket.OPEN) {
+          if (message)
+            console.warn("Cannot send text message: WebSocket not open.");
+          return;
+        }
+        const messageData = { type: "chat_message", message: message };
+        try {
+          socket.send(JSON.stringify(messageData));
+          // Local echo for sent text message
+          // appendMessage({
+          //   sender_username: currentUsername,
+          //   message: message,
+          //   timestamp: new Date().toISOString(),
+          // });
+          messageInput.value = ""; // Clear input
+          if (userIsTyping) sendStopTyping(); // Stop typing indicator if needed
+          toggleSendMicButton(); // Update button icon
+        } catch (e) {
+          console.error("Error sending text message via WebSocket:", e);
+          alert("Failed to send message."); // Notify user
+        }
+      }
+
+      // --- Emoji Picker Logic ---
+      if (emojiButton && pickerContainer && emojiPicker) {
+        // ... (keep existing emoji logic as is) ...
+        emojiButton.addEventListener("click", (event) => {
+          event.stopPropagation(); // Prevent click bubbling to document
+          const isVisible = pickerContainer.style.display !== "none";
+          pickerContainer.style.display = isVisible ? "none" : "block";
+          // Optional: focus search input when opened
+          if (!isVisible) {
+            try {
+              emojiPicker.shadowRoot
+                .querySelector("input[type=search]")
+                .focus();
+            } catch (e) {}
+          }
+        });
+        emojiPicker.addEventListener("emoji-click", (event) => {
+          const emoji = event.detail.unicode;
+          if (emoji) {
+            // Insert emoji at cursor position
+            const start = messageInput.selectionStart;
+            const end = messageInput.selectionEnd;
+            const text = messageInput.value;
+            messageInput.value =
+              text.substring(0, start) + emoji + text.substring(end);
+            // Move cursor after inserted emoji
+            messageInput.selectionStart = messageInput.selectionEnd =
+              start + emoji.length;
+            messageInput.focus();
+            // Trigger input event to update button state etc.
+            messageInput.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        });
+        // Hide picker if clicked outside
+        document.addEventListener("click", (event) => {
+          if (
+            pickerContainer.style.display !== "none" &&
+            !pickerContainer.contains(event.target) &&
+            event.target !== emojiButton
+          ) {
+            pickerContainer.style.display = "none";
+          }
+        });
+      } else {
+        console.error("Could not find emoji elements for setup.");
+        if (emojiButton) emojiButton.style.display = "none"; // Hide button if picker missing
+      }
+
+      // --- File Attachment Logic ---
+      if (attachButton && fileInput) {
+        attachButton.addEventListener("click", () => {
+          console.log("Attach button clicked");
+          fileInput.click(); // Trigger hidden file input
+        });
+        fileInput.addEventListener("change", (event) => {
+          const files = event.target.files;
+          if (files.length > 0) {
+            const file = files[0]; // Get the selected file
+            console.log("File selected:", file.name, file.size, file.type);
+            uploadFile(file); // Call upload function
+            event.target.value = null; // Reset file input
+          } else {
+            console.log("No file selected.");
+          }
+        });
+      } else {
+        console.error("Could not find attach button or file input element.");
+      }
+
+      function uploadFile(file) {
+        // Accepts the file object
+        const formData = new FormData();
+        formData.append("file", file); // Add file to form data
+
+        console.log(`UPLOAD: Uploading ${escapeHTML(file.name)}...`);
+        const uploadUrl = "/chat/api/upload/"; // Your Django upload endpoint
+
+        if (!csrftoken) {
+          /* ... CSRF token check ... */
+          console.error("UPLOAD: CSRF token not found.");
+          alert("Error: Missing security token. Please refresh.");
+          return;
+        }
+
+        // Disable attach button during upload? Add progress indicator?
+
+        fetch(uploadUrl, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrftoken, Accept: "application/json" },
+          body: formData,
+          credentials: "include",
+        })
+          .then((response) =>
+            response.json().then((data) => ({
+              ok: response.ok,
+              status: response.status,
+              data,
+            }))
+          )
+          .then((result) => {
+            if (!result.ok) {
+              /* ... Error handling for failed upload ... */
+              console.error(
+                "UPLOAD: Upload failed:",
+                result.status,
+                result.data.error || "Unknown server error"
+              );
+              throw new Error(
+                result.data.error ||
+                  `Upload failed with status ${result.status}`
+              );
+            }
+
+            console.log("UPLOAD: Upload successful:", result.data);
+            const caption = messageInput.value.trim(); // Get caption from input field
+
+            if (socket && socket.readyState === WebSocket.OPEN) {
+              // ** MODIFIED TO SEND file.name and file.type **
+              const mediaMessageData = {
+                type: "media_message",
+                // NO file_url here - backend consumer will create ChatMessage
+                // and broadcast details including download url generated from message ID
+                original_filename: result.data.original_filename, // Use the correct key from JSON response
+                mime_type: result.data.mime_type,
+                saved_path: result.data.saved_path, // Send path to encrypted file
+                nonce_b64: result.data.nonce_b64, // Send the nonce
+                encrypted_key_b64: result.data.encrypted_key_b64, // Send the encrypted file key
+                caption: caption, // Send the caption/text message entered by user
+              };
+              // --- END CHANGES ---
+
+              try {
+                socket.send(JSON.stringify(mediaMessageData));
+                console.log(
+                  "UPLOAD: Media message info (name, type) sent via WebSocket."
+                );
+
+                // Clear caption input ONLY after successful send
+                messageInput.value = "";
+                toggleSendMicButton(); // Update button state
+                if (userIsTyping) sendStopTyping(); // Clear typing indicator if caption was typed
+
+                // ** REMOVED LOCAL APPEND **
+                // Don't append locally here. Wait for the message broadcast back from the server
+                // which will contain the message ID needed for the download link.
+              } catch (e) {
+                /* ... Error handling for WebSocket send failure ... */
+                console.error(
+                  "UPLOAD: Error sending media message via WebSocket:",
+                  e
+                );
+                alert(
+                  "Upload succeeded, but failed to send message via WebSocket."
+                );
+              }
+            } else {
+              /* ... Error handling for WebSocket not open ... */
+              console.error(
+                `UPLOAD: WebSocket not open (state: ${
+                  socket ? socket.readyState : "null"
+                }). Cannot send media message info.`
+              );
+              alert(
+                "File Uploaded Successfully!\n\nHowever, the chat connection is down. The message could not be sent."
+              );
+            }
+          })
+          .catch((error) => {
+            /* ... Error handling for network/fetch errors ... */
+            console.error(
+              "UPLOAD: Error during file upload fetch or processing:",
+              error
+            );
+            alert(`Error uploading file: ${error.message}`);
+          });
+        // Re-enable attach button? Remove progress indicator?
+      }
+
+      // --- Audio Recording Logic ---
+      async function startRecording() {
+        // ... (keep existing startRecording function as is) ...
+        console.log("Recording: Attempting to start...");
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert("Your browser does not support audio recording.");
+          return;
+        }
+        try {
+          audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          console.log("Recording: Microphone access granted.");
+          // UI feedback for recording start
+          chatContainer.classList.add("recording"); // Add class for visual cue
+          toggleSendMicButton(); // Update button to show stop icon
+
+          // Determine supported MIME type
+          const options = { mimeType: "audio/webm;codecs=opus" };
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.log(`${options.mimeType} not supported, trying ogg`);
+            options.mimeType = "audio/ogg;codecs=opus";
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              console.log(`${options.mimeType} not supported, trying default`);
+              delete options.mimeType; // Use browser default if specific ones fail
+            }
+          }
+          console.log("Recording with options:", options);
+
+          mediaRecorder = new MediaRecorder(audioStream, options);
+          audioChunks = []; // Reset chunks array
+
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunks.push(event.data);
+              // console.log("Recording: Data available, chunk size:", event.data.size);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            console.log("Recording: Stopped.");
+            // UI feedback for recording stop
+            chatContainer.classList.remove("recording");
+            toggleSendMicButton(); // Update button to show mic icon
+
+            // Stop audio stream tracks
+            if (audioStream) {
+              audioStream.getTracks().forEach((track) => track.stop());
+              audioStream = null;
+            }
+
+            if (audioChunks.length === 0) {
+              console.warn("Recording: No audio data recorded.");
+              isRecording = false; // Reset recording state
+              return; // Don't upload if empty
+            }
+
+            // Create Blob and File
+            const audioBlob = new Blob(audioChunks, {
+              type: mediaRecorder.mimeType || "audio/webm",
+            });
+            const fileExtension = (mediaRecorder.mimeType || "audio/webm")
+              .split("/")[1]
+              .split(";")[0];
+            const fileName = `voice_message_${Date.now()}.${fileExtension}`;
+            const audioFile = new File([audioBlob], fileName, {
+              type: audioBlob.type,
+            });
+
+            console.log(
+              "Recording: Blob created:",
+              audioBlob.size,
+              audioBlob.type
+            );
+            console.log("Recording: File created:", audioFile.name);
+
+            // Upload the recorded audio file
+            uploadFile(audioFile);
+
+            // Reset state
+            audioChunks = [];
+            isRecording = false;
+          }; // end onstop
+
+          mediaRecorder.start(); // Start recording
+          isRecording = true; // Set recording state
+          console.log("Recording: Started.");
+        } catch (err) {
+          /* ... Error handling for getUserMedia ... */
+          console.error(
+            "Recording: Error accessing microphone or starting recorder:",
+            err
+          );
+          alert(
+            `Error accessing microphone: ${err.name}. Please ensure permission is granted and reload.`
+          );
+          // Reset UI and state on error
+          chatContainer.classList.remove("recording");
+          toggleSendMicButton();
+          isRecording = false;
+        }
+      }
+      function stopRecording() {
+        // ... (keep existing stopRecording function as is) ...
+        console.log("Recording: Attempting to stop...");
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+          mediaRecorder.stop(); // This will trigger the onstop handler
+        } else {
+          console.warn(
+            "Recording: stopRecording called but not recording or already stopped."
+          );
+          // Ensure state and UI are reset even if called unexpectedly
+          isRecording = false;
+          if (audioStream) {
+            audioStream.getTracks().forEach((track) => track.stop());
+            audioStream = null;
+          }
+          chatContainer.classList.remove("recording");
+          toggleSendMicButton();
+        }
+      }
+
+      // --- Function: Handle Send or Mic Button Click ---
+      function handleSendMicClick() {
+        // ... (keep existing handleSendMicClick function as is) ...
+        if (messageInput.value.trim().length > 0) {
+          sendTextMessage(); // Send text if input has content
+        } else {
+          // Otherwise, toggle recording state
+          if (!isRecording) {
+            startRecording();
+          } else {
+            stopRecording();
+          }
+        }
+      }
+
+      // --- Function: Toggle Send/Mic Button Icon ---
+      function toggleSendMicButton() {
+        // ... (keep existing toggleSendMicButton function as is) ...
+        const hasText = messageInput.value.trim().length > 0;
+        if (isRecording) {
+          // Show stop/recording icon
+          sendIcon.style.display = "none";
+          micIcon.style.display = "inline-block"; // Assuming mic icon doubles as stop
+          sendMicButton.title = "Stop Recording";
+          sendMicButton.classList.add("recording"); // Class for red color etc.
+        } else if (hasText) {
+          // Show send icon
+          sendIcon.style.display = "inline-block";
+          micIcon.style.display = "none";
+          sendMicButton.title = "Send";
+          sendMicButton.classList.remove("recording");
+        } else {
+          // Show mic icon
+          sendIcon.style.display = "none";
+          micIcon.style.display = "inline-block";
+          sendMicButton.title = "Record Voice Message";
+          sendMicButton.classList.remove("recording");
+        }
+        // Optional: Keep button enabled unless WebSocket is down
+        // sendMicButton.disabled = !(socket && socket.readyState === WebSocket.OPEN);
+        // For simplicity, we enable/disable only on connect/close for now.
+      }
+      // --- NEW Edit/Delete Functions ---
+      function editMessage(messageId) {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          alert("Cannot edit: Chat not connected.");
+          return;
+        }
+
+        const messageContainer = chatBox.querySelector(
+          `.message-container[data-message-id='${messageId}']`
+        );
+        const bubble = messageContainer
+          ? messageContainer.querySelector(".message-bubble")
+          : null;
+        if (!bubble) {
+          console.error(`Cannot find bubble for message ID ${messageId}`);
+          return;
+        }
+
+        // Basic prompt for editing - replace with a more sophisticated inline editor if desired
+        const currentText = bubble.childNodes[0].nodeValue.trim(); // Assumes text is the first child node
+        const newText = prompt("Edit your message:", currentText);
+
+        if (
+          newText !== null &&
+          newText.trim() !== "" &&
+          newText !== currentText
+        ) {
+          const messageData = {
+            type: "edit_message",
+            message_id: messageId,
+            message: newText.trim(), // Send the new message content
+          };
+          try {
+            socket.send(JSON.stringify(messageData));
+            console.log(`EDIT: Sent edit request for message ${messageId}`);
+            // Optionally update UI immediately for responsiveness, or wait for broadcast
+            // bubble.childNodes[0].nodeValue = newText.trim() + ' '; // Update text node
+            // Add '(edited)' indicator locally? Handled by broadcast is better for consistency.
+          } catch (e) {
+            console.error("Error sending edit message:", e);
+            alert("Failed to send edit request.");
+          }
+        } else if (newText === null) {
+          console.log("Edit cancelled.");
+        } else {
+          console.log("No changes made or message cleared.");
+        }
+      }
+
+      function deleteMessage(messageId) {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          alert("Cannot delete: Chat not connected.");
+          return;
+        }
+
+        // Optional confirmation
+        if (
+          !confirm(
+            "Are you sure you want to delete this message? This cannot be undone."
+          )
+        ) {
+          return;
+        }
+
+        const messageData = {
+          type: "delete_message",
+          message_id: messageId,
+        };
+        try {
+          socket.send(JSON.stringify(messageData));
+          console.log(`DELETE: Sent delete request for message ${messageId}`);
+          // Optionally update UI immediately (grey out/hide), or wait for broadcast
+          // const messageContainer = chatBox.querySelector(`.message-container[data-message-id='${messageId}']`);
+          // if (messageContainer) { messageContainer.style.opacity = '0.5'; } // Example visual cue
+        } catch (e) {
+          console.error("Error sending delete message:", e);
+          alert("Failed to send delete request.");
+        }
+      }
+
+      // --- Other Listeners & Init ---
+      messageInput.addEventListener("keypress", function (e) {
+        // ... (keep existing keypress listener as is) ...
+        if (e.key === "Enter" && !e.shiftKey) {
+          // Send on Enter, allow Shift+Enter for newline
+          e.preventDefault(); // Prevent default newline insertion
+          handleSendMicClick(); // Use the main handler which checks input
+        }
+      });
+
+      window.onload = () => {
+        // ... (keep existing onload logic as is) ...
+        if (messageInput) {
+          messageInput.focus(); // Focus input on load
+        }
+        toggleSendMicButton(); // Set initial button state
+        connectWebSocket(); // Establish WebSocket connection on load
+      };
+
+      // Removed initial connectWebSocket() call from here, now done in window.onload
+    </script>
+  </body>
+</html>

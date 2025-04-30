@@ -1,0 +1,103 @@
+{# appointments/templates/appointments/appointment_history.html - Standalone Version #}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Appointment History</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+     />
+     {# Link Font Awesome if needed for icons #}
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </head>
+  <body>
+    {# --- Optional Navbar --- #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Telemedicine</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                 <a class="nav-link" href="{% url 'home' %}">Home</a>
+              </li>
+              <li class="nav-item">
+                <span class="navbar-text me-3">Hello, {{ user.username }}!</span>
+              </li>
+              <li class="nav-item">
+                <a class="btn btn-outline-secondary btn-sm" href="{% url 'logout' %}">Logout</a>
+              </li>
+            {% else %}
+               <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+              </li>
+               <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Register</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {# --- End Navbar --- #}
+
+    <main class="container mt-4">
+        <h2 class="mb-4">My Appointment History</h2>
+
+        {% if past_appointments %}
+            <div class="list-group">
+            {% for appt in past_appointments %}
+                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-2 list-group-item-light text-muted"> {# Style as muted/past #}
+                   <div class="d-flex w-100 justify-content-between">
+                       <h5 class="mb-1">Dr. {{ appt.doctor.username }}</h5>
+                       <small>{{ appt.requested_date|date:"D, M d, Y" }}</small>
+                   </div>
+                   <p class="mb-1">
+                       Time: {{ appt.requested_time|time:"P" }} <br>
+                       Type: {{ appt.get_appointment_type_display }} <br>
+                       Final Status: <span class="badge
+                           {% if appt.status == 'CANCELLED_DOCTOR' or appt.status == 'CANCELLED_PATIENT' %}bg-danger
+                           {% elif appt.status == 'COMPLETED' %}bg-primary
+                           {% elif appt.status == 'NO_SHOW' %}bg-secondary
+                           {% else %}bg-dark{% endif %}">
+                           {{ appt.get_status_display }}</span>
+                   </p>
+                   <small>Symptoms noted: {{ appt.symptoms|default:"N/A"|truncatewords:15 }}</small>
+                   <div class="mt-2">
+                        {# Add action buttons if needed, e.g., view details, leave review (if completed) #}
+                        {# Example: <a href="#" class="btn btn-sm btn-info">View Details</a> #}
+                        {% if appt.status == 'COMPLETED' %}
+                            {# Placeholder for review link #}
+                            {# Check if review already given? Requires more logic #}
+                            {# <a href="{% url 'appointments:add_doctor_review' appt.doctor.id %}" class="btn btn-sm btn-warning">Leave Review</a> #}
+                        {% endif %}
+                   </div>
+               </div>
+            {% endfor %}
+            </div>
+        {% else %}
+             <p class="text-muted">You have no past appointment records.</p>
+        {% endif %}
+
+    </main>
+
+    <footer class="text-center mt-5 py-3 bg-light">
+        <p class="mb-0">&copy; {% now "Y" %} Telemedicine Platform</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+  </body>
+</html>

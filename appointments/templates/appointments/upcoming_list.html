@@ -1,0 +1,80 @@
+{# appointments/templates/appointments/upcoming_list.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upcoming Appointments</title> {# Moved title here #}
+
+    {# --- Add Necessary CSS Links --- #}
+    {# Link to Bootstrap CSS (required for styling) #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    {# Link Font Awesome if you want icons #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    {# Add any custom CSS if needed #}
+    <style>
+        body {
+            padding-top: 20px; /* Add some padding at the top */
+            background-color: #f8f9fa; /* Optional: Light background */
+        }
+        .list-group-item h5 {
+             color: #0d6efd; /* Bootstrap primary blue for doctor names */
+        }
+         .badge { /* Ensure badges are visible */
+             font-size: 0.9em;
+         }
+    </style>
+</head>
+<body>
+
+    {# Removed {% extends ... %} and {% block content %} tags #}
+
+    <div class="container mt-4">
+        <h2>Your Upcoming Appointments</h2>
+        <hr>
+        {% if upcoming_appointments %}
+            <div class="list-group">
+                {% for appt in upcoming_appointments %}
+                <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            {% comment %} Access profile safely {% endcomment %}
+                            {% with profile=appt.doctor.doctor_profile %}
+                                Dr. {{ appt.doctor.username }}
+                                {% if profile and profile.specialization %}
+                                    ({{ profile.specialization }})
+                                {% endif %}
+                            {% endwith %}
+                        </h5>
+                        <small class="text-muted">{{ appt.requested_date }} at {{ appt.requested_time|time:"g:i A" }}</small> {# Format time #}
+                    </div>
+                    <p class="mb-1">Type: {{ appt.get_appointment_type_display }}</p> {# Shows user-friendly choice name #}
+                    <p class="mb-1">Status: <span class="badge bg-{% if appt.status == 'CONFIRMED' %}success{% elif appt.status == 'PENDING' %}warning{% else %}secondary{% endif %}">{{ appt.get_status_display }}</span></p> {# Shows user-friendly status, added secondary fallback #}
+                    {% if appt.symptoms %}
+                        <p class="mb-1"><small>Symptoms: {{ appt.symptoms|truncatewords:20 }}</small></p>
+                    {% endif %}
+                    {# Add links to view details or cancel if needed #}
+                    {# <a href="#" class="btn btn-sm btn-outline-danger mt-2">Cancel</a> #}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                You have no upcoming appointments scheduled.
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back to Dashboard</a>
+            {# Maybe add links to book new appointments here #}
+        </div>
+    </div>
+
+    {# Removed {% endblock %} tag #}
+
+    {# Add Bootstrap JS Bundle (usually needed) at the end of body #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+</body>
+</html>

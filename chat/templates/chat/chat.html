@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Encrypted Chat</title>
+</head>
+<body>
+    <h2>Chat Room</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const roomName = "testroom";
+        const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+        const receiverId = 2;  // Change this dynamically based on logged-in user
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            document.getElementById("chat-box").innerHTML += `<p><b>${data.sender}:</b> ${data.message}</p>`;
+        };
+
+        function sendMessage() {
+            const input = document.getElementById("message-input");
+            ws.send(JSON.stringify({
+                'message': input.value,
+                'receiver_id': receiverId
+            }));
+            input.value = "";
+        }
+    </script>
+</body>
+</html>

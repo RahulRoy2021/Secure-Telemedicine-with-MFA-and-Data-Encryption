@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telemedicine Platform - Welcome</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+:root {
+            --primary-color: #007bff; /* Primary Blue */
+            --primary-darker: #0056b3;
+            --secondary-color: #6c757d; /* Grey */
+            --success-color: #28a745; /* Green */
+            --info-color: #17a2b8; /* Teal */
+            --warning-color: #ffc107; /* Yellow */
+            --danger-color: #dc3545; /* Red */
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --white-color: #ffffff;
+            --text-color: #495057;
+            --border-color: #dee2e6;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --card-hover-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --border-radius: 8px; /* Consistent border radius */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            /* Optional background image styling */
+            /* background-image: linear-gradient(rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0.9)), url('YOUR_BACKGROUND_IMAGE_URL.jpg'); */
+            /* background-size: cover; */
+            /* background-attachment: fixed; */
+        }
+
+        header {
+            background-color: var(--white-color);
+            color: var(--dark-color);
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px; /* Adjust as needed */
+            vertical-align: middle;
+        }
+         .logo span {
+             font-size: 1.5em;
+             font-weight: 600;
+             margin-left: 10px;
+             color: var(--primary-color);
+             vertical-align: middle;
+         }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Space between elements */
+        }
+        .user-greeting {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+         .user-greeting strong {
+             color: var(--dark-color);
+         }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        h1 { font-size: 2.2em; text-align: center; margin-bottom: 30px; }
+        h2 { font-size: 1.8em; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 25px;}
+        h3 { font-size: 1.5em; margin-top: 30px; margin-bottom: 20px; }
+        h4 { font-size: 1.2em; margin-bottom: 10px;}
+
+        /* Hero Section Styling */
+        .hero-section {
+            background: linear-gradient(to right, var(--primary-color), #0056b3); /* Gradient background */
+            color: var(--white-color);
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: var(--card-shadow);
+        }
+        .hero-section h1 { color: var(--white-color); margin-bottom: 15px; font-size: 2.5em;}
+        .hero-section p { font-size: 1.1em; margin-bottom: 25px; opacity: 0.9; }
+
+        /* Button Styling */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .btn i { margin-right: 8px; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);}
+        .btn-sm { padding: 8px 15px; font-size: 0.85em; }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-info { background-color: var(--info-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: var(--dark-color); } /* Better contrast for yellow */
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-light { background-color: var(--light-color); color: var(--dark-color); border: 1px solid var(--border-color); }
+        .btn-outline-primary { background-color: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .btn-outline-primary:hover { background-color: var(--primary-color); color: white; }
+
+        /* Dashboard Section Styling */
+        .dashboard-section {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* --- MODIFIED Styles for Available Doctors Section --- */
+
+        .doctor-list-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px; /* Adjust spacing between cards if needed */
+            margin-top: 0;
+        }
+
+        .doctor-card {
+            /* Core styling */
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px; /* Adjusted padding slightly */
+            background-color: var(--white-color);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px; /* Keep bottom margin */
+
+            /* Flexbox for card layout */
+            display: flex;
+            align-items: center; /* Vertically align image, info, actions */
+            gap: 15px; /* Space between image, info, actions */
+
+            /* Sizing within the flex wrapper */
+            flex-basis: calc(50% - 13px); /* Example: Aim for 2 cards per row, adjust calc based on gap */
+            flex-grow: 1;     /* Allow growing */
+            /* Remove max-width to let flex-basis control it */
+
+            /* Ensure children are laid out correctly */
+            box-sizing: border-box; /* Include padding/border in element's total width/height */
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        /* Style the image within the card */
+        .doctor-card-img { /* Use class selector */
+            width: 65px;  /* Adjust size */
+            height: 65px; /* Adjust size */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--light-color);
+            flex-shrink: 0; /* Prevent image from shrinking */
+        }
+
+        /* Style the text info block */
+        .doctor-info {
+            flex-grow: 1; /* Allow text block to take available space */
+            margin: 0; /* Reset margin if any was inherited */
+        }
+        .doctor-info h4 {
+            margin-bottom: 5px;
+            font-size: 1.1em;
+            color: var(--primary-color);
+        }
+        .doctor-info p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        /* Style the actions block */
+        .doctor-actions {
+            flex-shrink: 0; /* Prevent button area from shrinking */
+            text-align: right; /* Align button to the right if needed */
+        }
+        .doctor-actions .btn {
+             white-space: nowrap; /* Prevent button text wrapping */
+        }
+
+
+        /* Responsive adjustment for smaller screens */
+        @media (max-width: 992px) { /* Adjust breakpoint if needed */
+             .doctor-card {
+                flex-basis: calc(50% - 13px); /* Still 2 columns on medium screens */
+             }
+        }
+        @media (max-width: 768px) {
+             .doctor-card {
+                flex-basis: 100%; /* Full width on smaller screens */
+                gap: 10px; /* Reduce gap */
+             }
+             .doctor-list-wrapper {
+                 gap: 15px; /* Maybe slightly smaller gap */
+             }
+             .doctor-card-img {
+                 width: 50px;
+                 height: 50px;
+             }
+             .doctor-info h4 { font-size: 1em;}
+             .doctor-info p { font-size: 0.85em;}
+        }
+
+        /* Ensure Heading is Block and Spaced */
+        #available-doctors-heading {
+            clear: both;
+            margin-top: 40px !important;
+            margin-bottom: 25px !important;
+        }
+       /* --- End Styles for Available Doctors Section --- */
+
+        /* Appointment Card Styling */
+        .appointment-card {
+            background-color: var(--white-color);
+            padding: 20px;
+            display: flex; /* Changed to flex for better control */
+            flex-direction: column; /* Stack items vertically */
+            align-items: flex-start; /* Align items to the left */
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+        .appointment-card .badge { font-size: 0.8em; padding: .4em .6em; }
+        .appointment-actions form { display: inline-block; margin-right: 5px;}
+
+        /* Feature Grid styling */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .feature-card {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+        .feature-card i {
+            font-size: 2.5em; /* Larger icons */
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: block; /* Center icon easily */
+        }
+        .feature-card h4 { margin-bottom: 10px; font-size: 1.15em; }
+        .feature-card p { font-size: 0.9em; color: var(--secondary-color); margin-bottom: 20px; min-height: 50px; /* Give some consistent height */ }
+        .feature-card .btn { width: 80%; /* Make buttons more prominent */ }
+
+
+        /* Floating Icons (Chat & Notifications) */
+        .floating-icon {
+            position: fixed;
+            width: 55px; /* Slightly larger */
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px; /* Icon size */
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            z-index: 1050;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .floating-icon:hover {
+             transform: scale(1.1);
+        }
+
+        .chat-icon-float {
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: var(--white-color) !important; /* Ensure text color is white */
+        }
+        .chat-icon-float:hover {
+            background-color: var(--primary-darker);
+            color: var(--white-color) !important;
+        }
+
+        .notification-icon-float {
+            bottom: 90px; /* Position above chat */
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: var(--white-color) !important;
+        }
+         .notification-icon-float:hover {
+             background-color: var(--dark-color);
+             color: var(--white-color) !important;
+         }
+
+        /* Notification Badge Styling */
+        .notification-badge {
+            position: absolute;
+            top: -5px; /* Adjust position */
+            right: -5px; /* Adjust position */
+            /* Bootstrap compatible classes used in HTML take precedence, but setting base style here */
+            font-size: 0.65em;
+            padding: .3em .5em;
+            background-color: var(--danger-color); /* Use theme color */
+            border: 2px solid var(--white-color); /* Add border to make it pop */
+            display: none; /* Initially hidden */
+        }
+
+        /* General Utility */
+        .mb-3 { margin-bottom: 1rem !important; }
+        .mt-3 { margin-top: 1rem !important; }
+        .text-danger { color: var(--danger-color) !important; }
+        .text-muted { color: var(--secondary-color) !important; opacity: 0.8; }
+        .text-center { text-align: center; }
+        hr { border: 0; height: 1px; background-color: var(--border-color); margin: 40px 0; }
+
+        /* General Responsive Adjustments */
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 10px;}
+            .user-actions { width: 100%; justify-content: space-between;}
+            .hero-section h1 { font-size: 2em;}
+            .hero-section p { font-size: 1em;}
+            .feature-grid { grid-template-columns: 1fr; /* Stack cards on smaller screens */ }
+            /* Specific doctor card responsiveness handled in its own section */
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <span><i class="fas fa-heartbeat"></i> TeleHealth</span> </a>
+            {% if user.is_authenticated %}
+                <div class="user-actions">
+                    <span class="user-greeting">Hello, <strong>{{ user.username }}</strong>!</span>
+                    <a href="{% url 'logout' %}" class="btn btn-warning btn-sm">Logout</a>
+                </div>
+            {% else %}
+                <div class="user-actions">
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Register</a>
+                </div>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container">
+        {% if not user.is_authenticated %}
+            <section class="hero-section">
+                <h1>Your Health, Connected</h1>
+                <p>Access qualified doctors from the comfort of your home. Book appointments, get consultations, and manage your health online.</p>
+                <a href="{% url 'register' %}" class="btn btn-light">Get Started Today <i class="fas fa-arrow-right"></i></a>
+            </section>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            {# --- Notification Icon --- moved outside user-actions for fixed positioning #}
+            <a href="{% url 'notifications:notification_list' %}" id="notification-icon-link" title="View Notifications" class="floating-icon notification-icon-float">
+                 <i class="fas fa-bell"></i>
+                 {# --- Badge for Count --- Using specific class now #}
+                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill notification-badge bg-danger border border-light"
+                       id="notification-count"
+                       style="display: none; font-size: 0.6em; padding: .25em .4em;">
+                     0 <span class="visually-hidden">unread notifications</span>
+                 </span>
+            </a>
+
+            {# ================================================================ #}
+            {# Conditional Display Based on User Role                           #}
+            {# ================================================================ #}
+
+            {% if user.is_superuser %}
+                {# --- Admin View --- #}
+                <section id="admin-dashboard" class="dashboard-section">
+                    <h2><i class="fas fa-user-shield"></i> Admin Dashboard</h2>
+                    <p>Manage platform users, view communications, and oversee operations.</p>
+                    <a href="{% url 'chat:chat_home' %}" class="btn btn-primary"><i class="fas fa-comments"></i> View User Chats</a>
+                    {# <a href="/admin/" class="btn btn-secondary"><i class="fas fa-users-cog"></i> Django Admin</a> #}
+                    {# Add other admin links here #}
+                </section>
+
+            {% elif user.is_doctor %}
+                 {# --- Doctor View --- #}
+                <section id="doctor-dashboard" class="dashboard-section">
+                    <h2><i class="fas fa-user-md"></i> Doctor Dashboard</h2>
+                    {% with doctor_profile=user.doctor_profile %}
+                        {% if doctor_profile %}
+                            <p>Your Specialization: <strong>{{ doctor_profile.specialization|default:"Not set" }}</strong></p>
+                            <div class="mb-3">
+                                <a href="{% url 'manage_doctor_profile' %}" class="btn btn-secondary btn-sm"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                                <a href="{% url 'manage_availability' %}" class="btn btn-info btn-sm"><i class="fas fa-clock"></i> Update Availability</a>
+                                <a href="{% url 'appointments:doctor_appointment_list' %}" class="btn btn-primary btn-sm"><i class="fas fa-calendar-alt"></i> All Appointments</a>
+                                <a href="{% url 'orders:create_medicine_order' %}" class="btn btn-success btn-sm"><i class="fas fa-pills"></i> Create Medicine Order</a>
+                                <a href="{% url 'orders:view_issued_orders' %}" class="btn btn-light btn-sm"><i class="fas fa-list-alt"></i> View Issued Orders</a>
+                            </div>
+                            <hr>
+
+                            {# --- Display Next Appointment for Action --- #}
+                            <h4><i class="fas fa-calendar-day"></i> Next Pending/Confirmed Appointment</h4>
+                            {% if next_appointment_for_action %}
+                                {% with appt=next_appointment_for_action %}
+                                    <div class="appointment-card">
+                                        <div class="d-flex w-100 justify-content-between mb-2">
+                                            <h5 class="mb-1">Patient: {{ appt.patient.username }}</h5>
+                                            <small>{{ appt.requested_date|date:"D, M d, Y" }} at {{ appt.requested_time|time:"P" }}</small>
+                                        </div>
+                                        <p class="mb-1">
+                                            Type: {{ appt.get_appointment_type_display }} |
+                                            Status: <span class="badge rounded-pill
+                                                {% if appt.status == 'CONFIRMED' %}bg-success{% elif appt.status == 'PENDING' %}bg-warning text-dark{% elif appt.status == 'CANCELLED' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                {{ appt.get_status_display }}</span>
+                                        </p>
+                                        <small class="text-muted">Symptoms: {{ appt.symptoms|default:"N/A"|truncatewords:15 }}</small>
+
+                                        <div class="mt-3 appointment-actions">
+                                            {% if appt.status == 'PENDING' %}
+                                                <form method="post" action="{% url 'appointments:confirm_appointment_doctor' appt.id %}" onsubmit="return confirm('Confirm this appointment?');">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Confirm</button>
+                                                </form>
+                                            {% endif %}
+                                            {% if appt.status == 'PENDING' or appt.status == 'CONFIRMED' %}
+                                                <form method="post" action="{% url 'appointments:cancel_appointment_doctor' appt.id %}" onsubmit="return confirm('Cancel this appointment?');">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Cancel</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                            {% else %}
+                                <p class="text-muted">No upcoming appointments requiring action.</p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-danger">Doctor profile not found. Please complete your profile.</p>
+                             <a href="{% url 'manage_doctor_profile' %}" class="btn btn-warning"><i class="fas fa-user-edit"></i> Create Profile</a>
+                        {% endif %}
+                    {% endwith %}
+                </section>
+
+            {% elif user.is_patient %}
+                 {# --- Patient View --- #}
+                 <section id="patient-dashboard">
+                    <h2><i class="fas fa-user-injured"></i> Patient Dashboard</h2>
+
+                    {# Medical Record Button - More prominent position #}
+                     <div class="mb-4">
+                         {% if medical_record %}
+                             <a href="{% url 'medical_record_form' %}" class="btn btn-warning"><i class="fas fa-file-medical-alt"></i> Edit Medical Record</a>
+                         {% else %}
+                             <a href="{% url 'medical_record_form' %}" class="btn btn-primary"><i class="fas fa-notes-medical"></i> Create Medical Record</a>
+                         {% endif %}
+                    </div>
+
+
+                    <div class="feature-grid">
+                        {# Search Doctors #}
+                        <div class="feature-card">
+                            <i class="fas fa-user-md"></i><h4>Find a Doctor</h4>
+                            <p>Search by specialty or name to find the right doctor for you.</p>
+                            <a href="{% url 'search_doctors' %}" class="btn btn-primary">Search Now</a>
+                        </div>
+
+                        {# Book Visit (Placeholder) #}
+                        <div class="feature-card">
+                            <i class="fas fa-calendar-plus"></i><h4>Book Appointment</h4>
+                            <p>Schedule a home visit, clinic visit, or video consultation.</p>
+                            {# Combine booking links or lead to a general booking page #}
+                            <a href="{% url 'search_doctors' %}" class="btn btn-success">Book Now</a>
+                        </div>
+
+                        {# View Upcoming Appointments #}
+                        <div class="feature-card">
+                            <i class="fas fa-calendar-check"></i><h4>Upcoming Appointments</h4>
+                            <p>Check details and manage your scheduled appointments.</p>
+                            <a href="{% url 'appointments:view_upcoming_appointments' %}" class="btn btn-info">View Upcoming</a>
+                        </div>
+
+                         {# View Medicine Orders #}
+                        <div class="feature-card">
+                            <i class="fas fa-prescription-bottle-alt"></i><h4>Medicine Orders</h4>
+                            <p>View and manage medication orders from your doctors.</p>
+                            <a href="{% url 'orders:view_medicine_orders' %}" class="btn btn-primary">View Orders</a>
+                        </div>
+
+                        {# Appointment History #}
+                        <div class="feature-card">
+                            <i class="fas fa-history"></i><h4>Appointment History</h4>
+                            <p>Access records and notes from your past consultations.</p>
+                            <a href="{% url 'appointments:appointment_history' %}" class="btn btn-secondary">View History</a>
+                        </div>
+                        {# Inside {% elif user.is_patient %} section #}
+                {# ... after the closing </div> of feature-grid ... #}
+            </section>
+                {# --- MODIFIED Available Doctors Section --- #}
+                <hr style="margin-top: 40px; margin-bottom: 30px;"> {# Explicit separator #}
+
+                {# Add ID for potential CSS targeting #}
+                <h3 id="available-doctors-heading" class="mt-4 mb-3"><i class="fas fa-users"></i> Available Doctors</h3>
+
+                {# Wrapper div for horizontal layout #}
+                <div class="doctor-list-wrapper">
+                    {% for doctor in doctors %}
+                      <div class="doctor-card"> {# Individual doctor card #}
+                          {% with profile=doctor.doctor_profile %}
+                              {# Image #}
+                              {% if profile and profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}" alt="Photo of Dr. {{ doctor.username }}" class="doctor-card-img" />
+                              {% else %}
+                                <img src="/static/images/default-doctor.png" alt="Default Doctor Image" class="doctor-card-img" />
+                              {% endif %}
+
+                              {# Doctor Info Block - Now direct child #}
+                              <div class="doctor-info">
+                                 <h4>Dr. {{ doctor.get_full_name|default:doctor.username }}</h4>
+                                  {% if profile and profile.specialization %}
+                                     <p>Specialization: {{ profile.specialization }}</p>
+                                  {% else %}
+                                     <p>Specialization: Not specified</p>
+                                  {% endif %}
+                              </div>
+
+                              {# Actions Block - Now direct child #}
+                              <div class="doctor-actions">
+                                   <a href="{% url 'appointments:view_doctor_availability' doctor.id %}" class="btn btn-warning btn-sm">Book Appointment</a>
+                              </div>
+                           {% endwith %}
+                      </div> {# End doctor-card #}
+                    {% empty %}
+                      {# Message INSIDE the wrapper if empty #}
+                      <div class="w-100"> {# Use w-100 for full width #}
+                           <p class="text-muted text-center mt-3">No doctors currently available.</p>
+                      </div>
+                    {% endfor %}
+                </div> {# --- END doctor-list-wrapper DIV --- #}
+                {# --- End Available Doctors Section --- #}
+                
+
+            {% else %}
+                 {# Fallback for unknown authenticated user roles #}
+                <section class="dashboard-section text-center">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Account Issue</h2>
+                    <p>Your account type is not fully configured. Please contact support for assistance.</p>
+                     <a href="{% url 'chat:start_admin_chat' %}" class="btn btn-danger"><i class="fas fa-headset"></i> Contact Support</a>
+                </section>
+            {% endif %} {# End role check #}
+
+            {# --- Floating Chat Icon --- #}
+            <a href="{% if user.is_superuser %}{% url 'chat:chat_home' %}{% else %}{% url 'chat:start_admin_chat' %}{% endif %}"
+               class="floating-icon chat-icon-float"
+               title="{% if user.is_superuser %}View User Chats{% else %}Chat with Support{% endif %}">
+                <i class="fas fa-comments"></i>
+            </a>
+
+        {% endif %} {# End user.is_authenticated #}
+
+    </main> {# End container #}
+
+    <footer style="text-align: center; padding: 20px; margin-top: 40px; background-color: var(--white-color); border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9em;">
+        © {% now "Y" %} TeleHealth Platform. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+    </footer>
+
+
+    <script>
+        // --- JS unchanged, ensure element IDs match ---
+        let socket = null; // Assume this is initialized elsewhere if needed
+        const currentUsername = "{{ request.user.username|escapejs }}";
+
+        const notificationIconLink = document.getElementById('notification-icon-link');
+        const notificationCountBadge = document.getElementById('notification-count');
+        let unreadCount = 0;
+
+        function updateNotificationBadge(count) {
+            if (!notificationCountBadge) return;
+            unreadCount = count;
+            if (unreadCount > 0) {
+                notificationCountBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                notificationCountBadge.style.display = 'inline-block'; // Use inline-block for badge display
+            } else {
+                notificationCountBadge.textContent = '0';
+                notificationCountBadge.style.display = 'none';
+            }
+        }
+
+        function checkUnreadNotifications() {
+            if (!notificationIconLink || !"{% url 'notifications:unread_count_api' %}") return; // Check if URL exists
+
+             fetch("{% url 'notifications:unread_count_api' %}")
+                .then(response => response.ok ? response.json() : Promise.reject('Failed to fetch count'))
+                .then(data => {
+                    console.log("Initial Unread Count:", data.unread_count);
+                    updateNotificationBadge(data.unread_count || 0);
+                })
+                .catch(error => {
+                    console.error('Error checking notifications:', error);
+                    updateNotificationBadge(0);
+                });
+        }
+
+        function setupWebSocketNotifications() {
+             if (socket) {
+                const originalOnMessage = socket.onmessage;
+                 socket.onmessage = function(event) {
+                    if (originalOnMessage) { originalOnMessage(event); }
+                     try {
+                        const data = JSON.parse(event.data);
+                        console.log("WS Received:", data);
+                        if (data.type === 'new_notification') {
+                            console.log("New Notification Received via WS:", data.notification);
+                            updateNotificationBadge(unreadCount + 1);
+                        }
+                     } catch (e) { console.error("Error processing WS message:", e); }
+                 };
+             } else {
+                console.warn("WebSocket for notifications not setup.");
+             }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check notifications only if user is logged in
+             if (currentUsername && notificationIconLink) {
+                if (typeof socket !== 'undefined' && socket && socket.readyState === WebSocket.OPEN) {
+                    console.log("WS open, setting up notifications & checking count.");
+                    setupWebSocketNotifications();
+                    checkUnreadNotifications();
+                } else if (typeof socket !== 'undefined' && socket) {
+                    console.log("WS exists but not open, setting up notifications on open.");
+                    socket.addEventListener('open', setupWebSocketNotifications, { once: true });
+                    socket.addEventListener('open', checkUnreadNotifications, { once: true });
+                } else {
+                    console.log("Socket not defined globally, checking count via fetch only.");
+                    checkUnreadNotifications();
+                    // Optional: Poll if WS fails
+                    // setInterval(checkUnreadNotifications, 60000);
+                }
+             }
+
+            
+        });
+    </script>
+</body>
+</html>

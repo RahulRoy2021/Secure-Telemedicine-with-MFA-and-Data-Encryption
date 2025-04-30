@@ -1,0 +1,160 @@
+{% extends "base.html" %} {# Make sure this path is correct #}
+
+{% block title %}Medical Record{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="card-title text-center mb-4 fw-bold">
+        <i class="bi bi-file-medical-fill"></i> {# Example icon, requires Bootstrap Icons linked #}
+        Your Medical Record
+      </h2>
+
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {# --- Render fields individually with Bootstrap styling --- #}
+
+        {# Diagnosis Field (Textarea) #}
+        <div class="mb-3">
+          <label for="{{ form.diagnosis.id_for_label }}" class="form-label">{{ form.diagnosis.label }}</label>
+          {# Add form-control class directly or via widget attrs in forms.py #}
+          <textarea name="{{ form.diagnosis.name }}"
+                    id="{{ form.diagnosis.id_for_label }}"
+                    class="form-control {% if form.diagnosis.errors %}is-invalid{% endif %}"
+                    rows="3">{{ form.diagnosis.value|default_if_none:"" }}</textarea>
+          {% if form.diagnosis.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.diagnosis.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if form.diagnosis.help_text %}
+            <div class="form-text">{{ form.diagnosis.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        {# Prescription Field (Textarea) #}
+        <div class="mb-3">
+          <label for="{{ form.prescription.id_for_label }}" class="form-label">{{ form.prescription.label }}</label>
+          <textarea name="{{ form.prescription.name }}"
+                    id="{{ form.prescription.id_for_label }}"
+                    class="form-control {% if form.prescription.errors %}is-invalid{% endif %}"
+                    rows="3">{{ form.prescription.value|default_if_none:"" }}</textarea>
+          {% if form.prescription.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.prescription.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+           {% if form.prescription.help_text %}
+            <div class="form-text">{{ form.prescription.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        {# Test Results Field (Textarea) #}
+        <div class="mb-3">
+          <label for="{{ form.test_results.id_for_label }}" class="form-label">{{ form.test_results.label }}</label>
+          <textarea name="{{ form.test_results.name }}"
+                    id="{{ form.test_results.id_for_label }}"
+                    class="form-control {% if form.test_results.errors %}is-invalid{% endif %}"
+                    rows="3">{{ form.test_results.value|default_if_none:"" }}</textarea>
+          {% if form.test_results.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.test_results.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+           {% if form.test_results.help_text %}
+            <div class="form-text">{{ form.test_results.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        {# Description Field (Textarea) #}
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+            <textarea name="{{ form.description.name }}"
+                      id="{{ form.description.id_for_label }}"
+                      class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                      rows="2">{{ form.description.value|default_if_none:"" }}</textarea>
+            {% if form.description.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.description.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if form.description.help_text %}
+                <div class="form-text">{{ form.description.help_text|safe }}</div>
+            {% endif %}
+        </div>
+
+        {# Record Date Field (Date Input) #}
+        <div class="mb-3">
+            <label for="{{ form.record_date.id_for_label }}" class="form-label">{{ form.record_date.label }}</label>
+            {# Assuming widget type='date' is set in forms.py #}
+            <input type="{{ form.record_date.field.widget.input_type }}" {# Use widget type #}
+                   name="{{ form.record_date.name }}"
+                   id="{{ form.record_date.id_for_label }}"
+                   class="form-control {% if form.record_date.errors %}is-invalid{% endif %}"
+                   value="{{ form.record_date.value|date:'Y-m-d'|default_if_none:"" }}"> {# Format date value #}
+             {% if form.record_date.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.record_date.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+             {% if form.record_date.help_text %}
+                <div class="form-text">{{ form.record_date.help_text|safe }}</div>
+            {% endif %}
+        </div>
+
+
+        {# Attached File Field (File Input) #}
+        <div class="mb-3">
+          <label for="{{ form.attached_file.id_for_label }}" class="form-label">{{ form.attached_file.label }}</label>
+          {# Display current file if editing and file exists #}
+          {% if form.instance.pk and form.instance.attached_file %}
+            <p class="form-text">
+              Currently: <a href="{{ form.instance.attached_file.url }}">{{ form.instance.attached_file.name }}</a>
+              {# Add clear checkbox if needed, though ModelForms handle this partly #}
+               {% if not form.attached_file.field.required %}
+                 <input type="checkbox" name="{{ form.attached_file.html_name }}_clear" id="{{ form.attached_file.id_for_label }}_clear">
+                 <label for="{{ form.attached_file.id_for_label }}_clear">Clear</label>
+               {% endif %}
+            </p>
+            Change:
+          {% endif %}
+          {# Render the file input field #}
+          <input type="file"
+                 name="{{ form.attached_file.name }}"
+                 id="{{ form.attached_file.id_for_label }}"
+                 class="form-control {% if form.attached_file.errors %}is-invalid{% endif %}">
+          {% if form.attached_file.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.attached_file.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if form.attached_file.help_text %}
+            <div class="form-text">{{ form.attached_file.help_text|safe }}</div>
+          {% endif %}
+        </div>
+
+        {# --- End of fields --- #}
+
+        <div class="d-grid gap-2"> {# Optional: makes button full width #}
+            <button type="submit" class="btn btn-primary btn-lg">Save Record</button> {# Larger button #}
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

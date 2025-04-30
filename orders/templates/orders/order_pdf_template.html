@@ -1,0 +1,68 @@
+{# orders/templates/orders/order_pdf_template.html #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Medicine Order - {{ order.pk }}</title>
+    <style>
+        /* Basic styling for PDF - Avoid complex CSS */
+        body { font-family: sans-serif; line-height: 1.4; }
+        h1, h2 { text-align: center; color: #333; }
+        .header-info, .patient-info, .doctor-info { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .header-info p, .patient-info p, .doctor-info p { margin: 2px 0; }
+        .order-section h3 { color: #444; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 20px; }
+        .order-details, .notes-details {
+            white-space: pre-wrap; /* Preserve line breaks */
+            padding: 10px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medicine Order</h1>
+
+    <div class="header-info">
+        <p><strong>Order ID:</strong> {{ order.pk }}</p>
+        <p><strong>Order Date:</strong> {{ order.created_at|date:"Y-m-d P" }}</p>
+    </div>
+
+    <div class="patient-info">
+        <h2>Patient Information</h2>
+        <p><strong>Name:</strong> {{ order.patient.get_full_name|default:order.patient.username }}</p>
+        <p><strong>Email:</strong> {{ order.patient.email|default:"N/A" }}</p>
+        <p><strong>Phone:</strong> {{ order.patient.phone_number|default:"N/A" }}</p>
+        {# Add DOB or other relevant patient fields if needed #}
+    </div>
+
+    <div class="doctor-info">
+        <h2>Prescribing Doctor</h2>
+        <p><strong>Name:</strong> Dr. {{ order.doctor.get_full_name|default:order.doctor.username }}</p>
+        {% if order.doctor.doctor_profile %}
+            <p><strong>Specialization:</strong> {{ order.doctor.doctor_profile.specialization|default:"N/A" }}</p>
+            {# Add clinic info if relevant #}
+            {% if order.doctor.doctor_profile.clinic_name %}
+                <p><strong>Clinic:</strong> {{ order.doctor.doctor_profile.clinic_name }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="order-section">
+        <h3>Order Details</h3>
+        <div class="order-details">
+            {{ order.order_details|escape|linebreaksbr }} {# Escape details and preserve line breaks #}
+        </div>
+    </div>
+
+    {% if order.notes %}
+    <div class="order-section">
+        <h3>Additional Notes</h3>
+        <div class="notes-details">
+             {{ order.notes|escape|linebreaksbr }} {# Escape notes and preserve line breaks #}
+        </div>
+    </div>
+    {% endif %}
+
+</body>
+</html>
