@@ -223,14 +223,69 @@ class ChatConsumer(AsyncWebsocketConsumer):
             t_users_end = timezone.now() # ... (logging)
             if not sender or not receiver: # ... (error handling) ...
                 return
-
-            # --- Handle Edit/Delete (keep existing logic) ---
+            # --- Handle Edit/Delete ---
             if message_type == "edit_message":
-                # ... (keep existing edit logic) ...
-                pass # Placeholder
+                message_id = data.get("message_id")
+                new_content = data.get("message")
+                if not message_id or new_content is None: # Check if new_content is present, even if empty
+                    print(f"--- CONSUMER (edit): ERROR - Missing message_id or new_content.")
+                    # Optionally send an error back to the sender client
+                    # await self.send_payload({"type": "error", "message": "Missing data for edit."})
+                    return # Stop processing
+
+                print(f"--- CONSUMER (edit): Received request for ID {message_id}")
+                # Call the database function to edit the message
+                edited_instance = await self.edit_message_in_db(message_id, sender, new_content)
+
+                if edited_instance:
+                    # Broadcast the edited message details
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            "type": "message_edited_broadcast", # Matches the handler name
+                            "message_id": edited_instance.id,
+                            "new_message": new_content, # Send the original new content back
+                            "edited_at": edited_instance.edited_at.isoformat(),
+                            # Include sender if needed by client logic, though typically not required for broadcast
+                            # "sender_username": sender_username
+                        }
+                    )
+                    print(f"--- CONSUMER (edit): Broadcasted edit for ID {edited_instance.id}")
+                else:
+                     print(f"--- CONSUMER (edit): FAILED DB update or permission denied for ID {message_id}, skipping broadcast.")
+                     # Optionally send error to sender
+                     # await self.send_payload({"type": "error", "message": "Failed to edit message."})
+
+
             elif message_type == "delete_message":
-                # ... (keep existing delete logic) ...
-                pass # Placeholder
+                message_id = data.get("message_id")
+                if not message_id:
+                    print(f"--- CONSUMER (delete): ERROR - Missing message_id.")
+                    # Optionally send an error back to the sender client
+                    # await self.send_payload({"type": "error", "message": "Missing message ID for delete."})
+                    return # Stop processing
+
+                print(f"--- CONSUMER (delete): Received request for ID {message_id}")
+                # Call the database function to mark the message as deleted
+                deleted_successfully = await self.delete_message_in_db(message_id, sender)
+
+                if deleted_successfully:
+                    # Broadcast that the message was deleted
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            "type": "message_deleted_broadcast", # Matches the handler name
+                            "message_id": message_id,
+                            # Include sender if needed by client logic
+                            # "sender_username": sender_username
+                        }
+                    )
+                    print(f"--- CONSUMER (delete): Broadcasted delete for ID {message_id}")
+                else:
+                    print(f"--- CONSUMER (delete): FAILED DB update or permission denied for ID {message_id}, skipping broadcast.")
+                    # Optionally send error to sender
+                    # await self.send_payload({"type": "error", "message": "Failed to delete message."})
+
 
             # --- Handle Text Message (keep existing logic) ---
             elif message_type == "chat_message":

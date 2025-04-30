@@ -114,3 +114,20 @@ def decrypt_file_stream(input_stream, output_stream, key):
     except Exception as e:
         print(f"--- File Decryption Error: {e} ---")
         return False
+    
+
+
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+def encrypt_image(input_image_bytes, aes_key):
+    aesgcm = AESGCM(aes_key)
+    nonce = os.urandom(12)  # Unique nonce for each file
+    encrypted_data = aesgcm.encrypt(nonce, input_image_bytes, None)
+    return nonce + encrypted_data  # Concatenate nonce and encrypted data
+
+def decrypt_image(encrypted_image_data, aes_key):
+    nonce = encrypted_image_data[:12]  # Extract nonce from the encrypted data
+    encrypted_data = encrypted_image_data[12:]  # Extract the encrypted data
+    aesgcm = AESGCM(aes_key)
+    return aesgcm.decrypt(nonce, encrypted_data, None)  # Return the decrypted image bytes
